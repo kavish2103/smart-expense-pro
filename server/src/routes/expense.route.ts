@@ -1,14 +1,23 @@
-import { Router, Request, Response } from "express";
-import { createExpense } from "../controllers/expense.controller";
+import { Router } from "express";
+import {
+  createExpense,
+  getExpenses,
+} from "../controllers/expense.controller";
 import { validate } from "../middlewares/validate.middleware";
 import { createExpenseSchema } from "../schemas/expense.schema";
 
 const router = Router();
 
-router.get("/expenses", (req: Request, res: Response) => {
-  res.json({ message: "Expenses route is working!" });
-});
+/**
+ * GET /expenses
+ * Fetch all expenses
+ */
+router.get("/expenses", getExpenses);
 
+/**
+ * POST /expenses
+ * Create a new expense
+ */
 router.post(
   "/expenses",
   validate(createExpenseSchema),
