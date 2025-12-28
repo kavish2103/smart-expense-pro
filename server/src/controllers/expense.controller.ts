@@ -17,15 +17,46 @@ export const createExpense = async (req: Request, res: Response) => {
 };
 
 export const getExpenses = async (req: Request, res: Response) => {
-  const expenses = await prisma.expense.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-  res.status(200).json({
-    message: "Expenses fetched successfully",
-    data: expenses,
-  });
+    const { category, minAmount, maxAmount } = req.query;
+
+    const where: any = {};
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (minAmount || maxAmount) {
+      where.amount = {};
+      if (minAmount) where.amount.gte = Number(minAmount);
+      if (maxAmount) where.amount.lte = Number(maxAmount);
+    }
+
+    const expenses = await prisma.expense.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const total = await prisma.expense.count({ where });
+
+    res.status(200).json({
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: expenses,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch expenses" });
+  }
 };
+
 
