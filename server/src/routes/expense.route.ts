@@ -2,26 +2,27 @@ import { Router } from "express";
 import {
   createExpense,
   getExpenses,
+  updateExpense,
+  deleteExpense,
 } from "../controllers/expense.controller";
 import { validate } from "../middlewares/validate.middleware";
-import { createExpenseSchema } from "../schemas/expense.schema";
+import {
+  createExpenseSchema,
+  updateExpenseSchema,
+} from "../schemas/expense.schema";
 
 const router = Router();
 
-/**
- * GET /expenses
- * Fetch all expenses
- */
+router.post("/expenses", validate(createExpenseSchema), createExpense);
+
 router.get("/expenses", getExpenses);
 
-/**
- * POST /expenses
- * Create a new expense
- */
-router.post(
-  "/expenses",
-  validate(createExpenseSchema),
-  createExpense
+router.put(
+  "/expenses/:id",
+  validate(updateExpenseSchema),
+  updateExpense
 );
+
+router.delete("/expenses/:id", deleteExpense);
 
 export default router;

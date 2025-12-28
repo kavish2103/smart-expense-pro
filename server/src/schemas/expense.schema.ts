@@ -8,3 +8,11 @@ export const createExpenseSchema = z.object({
     message: "Invalid date format",
   }),
 });
+
+
+
+export const updateExpenseSchema = z.object({
+  amount: z.number().positive().optional(),
+  category: z.string().min(1).optional(),
+  title: z.string().min(1).optional(),
+});
