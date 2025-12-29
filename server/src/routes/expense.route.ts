@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { mockAuth } from "../middlewares/mockAuth.middleware";
+
 import {
   createExpense,
   getExpenses,
@@ -13,16 +15,22 @@ import {
 
 const router = Router();
 
-router.post("/expenses", validate(createExpenseSchema), createExpense);
+router.use(mockAuth);
+router.post("/expenses", mockAuth,
+  validate(createExpenseSchema), createExpense);
 
-router.get("/expenses", getExpenses);
+router.get("/expenses",mockAuth,
+  getExpenses);
 
 router.put(
   "/expenses/:id",
+  mockAuth,
+
   validate(updateExpenseSchema),
   updateExpense
 );
 
-router.delete("/expenses/:id", deleteExpense);
+router.delete("/expenses/:id",mockAuth,
+  deleteExpense);
 
 export default router;

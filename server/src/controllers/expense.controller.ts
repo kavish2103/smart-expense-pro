@@ -7,8 +7,10 @@ export const createExpense = async (req: Request, res: Response) => {
       amount: req.body.amount,
       category: req.body.category,
       title: req.body.title,
+      userId: req.user!.id,
     },
   });
+  
 
   res.status(201).json({
     message: "Expense created successfully",
@@ -37,7 +39,9 @@ export const getExpenses = async (req: Request, res: Response) => {
     }
 
     const expenses = await prisma.expense.findMany({
-      where,
+      where: {
+        userId: req.user!.id,
+      },
       skip,
       take: limit,
       orderBy: {
@@ -63,24 +67,26 @@ export const getExpenses = async (req: Request, res: Response) => {
 export const updateExpense = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.user!.id;
 
-    const expense = await prisma.expense.update({
-      where: { id },
+    const result = await prisma.expense.updateMany({
+      where: {
+        id,
+        userId,
+      },
       data: req.body,
     });
 
-    res.status(200).json({
-      message: "Expense updated successfully",
-      data: expense,
-    });
-  } catch (error: any) {
-    // Prisma record not found error
-    if (error.code === "P2025") {
+    if (result.count === 0) {
       return res.status(404).json({
-        message: "Expense not found",
+        message: "Expense not found or unauthorized",
       });
     }
 
+    res.status(200).json({
+      message: "Expense updated successfully",
+    });
+  } catch (error) {
     res.status(500).json({
       message: "Internal Server Error",
     });
@@ -88,12 +94,17 @@ export const updateExpense = async (req: Request, res: Response) => {
 };
 
 
+
 export const deleteExpense = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  await prisma.expense.delete({
-    where: { id },
+  await prisma.expense.deleteMany({
+    where: {
+      id: req.params.id,
+      userId: req.user!.id,
+    },
   });
+  
 
   res.status(200).json({
     message: "Expense deleted successfully",
