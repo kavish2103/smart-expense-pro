@@ -20,6 +20,9 @@ export const createExpense = async (req: Request, res: Response) => {
 
 export const getExpenses = async (req: Request, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     // Pagination
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
