@@ -1,3 +1,6 @@
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
+
 import express from "express";
 import healthRoutes from "./routes/health.route";
 import { logger } from "./middlewares/logger.middleware";
@@ -9,6 +12,7 @@ import authRoutes from "./routes/auth.route";
 
 
 const app = express();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(express.json());
 app.use(logger); 
