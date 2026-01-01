@@ -1,5 +1,7 @@
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
+import cors from "cors";
+import { corsConfig } from "./config/cors";
 
 import express from "express";
 import healthRoutes from "./routes/health.route";
@@ -15,6 +17,7 @@ import { apiLimiter } from "./config/rateLimit";
 
 const app = express();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(cors(corsConfig));
 
 app.use(express.json());
 app.use(logger); 
