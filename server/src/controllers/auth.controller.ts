@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../config/prisma";
+import { env } from "../config/env";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -36,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
 
   const token = jwt.sign(
     { id: user.id, email: user.email },
-    process.env.JWT_SECRET!,
+    env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
 
