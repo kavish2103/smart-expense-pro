@@ -14,24 +14,26 @@ const Expenses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        const res = await getExpenses();
-        setExpenses(res.data);
-      } catch (err) {
-        setError("Failed to load expenses");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchExpenses = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await getExpenses();
+      setExpenses(res.data);
+    } catch (err) {
+      setError("Failed to load expenses");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchExpenses();
   }, []);
 
   
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this expense?")) return;
+    if (!window.confirm("Are you sure you want to delete this expense?")) return;
 
     try {
       await deleteExpense(id);
@@ -42,8 +44,24 @@ const Expenses = () => {
     }
   };
 
-  if (loading) return <p>Loading expenses...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p>Loading your expenses...</p>;
+  if (error) {
+    return (
+      <div>
+        <p style={{ color: "red" }}>{error}</p>
+        <button onClick={fetchExpenses}>Retry</button>
+      </div>
+    );
+  }
+
+  if (expenses.length === 0) {
+    return (
+      <div>
+        <h2>No expenses yet</h2>
+        <p>Add your first expense to get started.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
