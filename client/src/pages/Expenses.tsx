@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getExpenses } from "../api/expense.api";
+import { deleteExpense, getExpenses } from "../api/expense.api";
 
 type Expense = {
   id: string;
@@ -29,6 +29,19 @@ const Expenses = () => {
     fetchExpenses();
   }, []);
 
+  
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this expense?")) return;
+
+    try {
+      await deleteExpense(id);
+      // Remove deleted expense from UI
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    } catch {
+      alert("Failed to delete expense");
+    }
+  };
+
   if (loading) return <p>Loading expenses...</p>;
   if (error) return <p>{error}</p>;
 
@@ -42,6 +55,12 @@ const Expenses = () => {
         {expenses.map((exp) => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> – ₹{exp.amount} ({exp.category})
+            <button
+              style={{ marginLeft: "10px" }}
+              onClick={() => handleDelete(exp.id)}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
