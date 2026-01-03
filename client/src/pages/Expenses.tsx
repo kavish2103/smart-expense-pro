@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { deleteExpense, getExpenses } from "../api/expense.api";
 
 type Expense = {
@@ -10,6 +11,7 @@ type Expense = {
 };
 
 const Expenses = () => {
+  const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -73,6 +75,12 @@ const Expenses = () => {
         {expenses.map((exp) => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> – ₹{exp.amount} ({exp.category})
+            <button
+  style={{ marginLeft: "10px" }}
+  onClick={() => navigate(`/expenses/edit/${exp.id}`)}
+>
+  Edit
+</button>
             <button
               style={{ marginLeft: "10px" }}
               onClick={() => handleDelete(exp.id)}

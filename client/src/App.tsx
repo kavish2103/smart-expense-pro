@@ -5,13 +5,14 @@ import Expenses from "./pages/Expenses";
 import CreateExpense from "./pages/CreateExpense";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import EditExpense from "./pages/EditExpense";
 
 import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar />  
 
       <Routes>
       <Route
@@ -50,6 +51,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/expenses/edit/:id"
+  element={
+    <ProtectedRoute>
+      <EditExpense />
+    </ProtectedRoute>
+  }
+/>
+
 
         <Route
           path="/expenses/new"
