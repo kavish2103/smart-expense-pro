@@ -1,9 +1,12 @@
 import api from "./axios";
 
-export const getExpenses = async () => {
-  const res = await api.get("/expenses");
-  return res.data;
-};
+export const getExpenses = (params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }) => {
+    return api.get("/expenses", { params });
+  };
 
 export const createExpense = async (data: {
   title: string;
@@ -22,7 +25,7 @@ export const updateExpense = (
       category: string;
     }
   ) => api.put(`/expenses/${id}`, data);
-  
+
 export const deleteExpense = async (id: string) => {
   const res = await api.delete(`/expenses/${id}`);
   return res.data;

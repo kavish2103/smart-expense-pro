@@ -12,6 +12,7 @@ const CreateExpense = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     try {
       await createExpense({
@@ -20,9 +21,15 @@ const CreateExpense = () => {
         category,
       });
 
+      // Reset form
+      setTitle("");
+      setAmount("");
+      setCategory("");
+      
       navigate("/expenses");
-    } catch (err) {
-      setError("Failed to create expense");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to create expense. Please try again.");
+      console.error("Error creating expense:", err);
     }
   };
 
@@ -30,7 +37,7 @@ const CreateExpense = () => {
     <div>
       <h2>Create Expense</h2>
 
-      {error && <p>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
         <input
@@ -48,12 +55,17 @@ const CreateExpense = () => {
           required
         />
 
-        <input
-          placeholder="Category"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
-        />
+        >
+          <option value="">Select Category</option>
+          <option value="travel">Travel</option>
+          <option value="food">Food</option>
+          <option value="drink">Drink</option>
+          <option value="cloths">Cloths</option>
+        </select>
 
         <button type="submit">Add Expense</button>
       </form>
