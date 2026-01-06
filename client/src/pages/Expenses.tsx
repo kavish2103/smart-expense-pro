@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { deleteExpense, getExpenses } from "../api/expense.api";
 
@@ -19,6 +19,7 @@ const Expenses = () => {
   const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [category, setCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,19 +29,11 @@ const Expenses = () => {
     setLoading(true);
     setError("");
     try {
-      // ✅ Fetch ALL expenses by passing a high limit (1000 should be enough for most users)
-      // This allows client-side pagination to work correctly
       const res = await getExpenses({ limit: 1000 });
 
-      console.log("API Response:", res.data);
-
-      // ✅ Backend returns { page, limit, total, totalPages, data: [...] }
       const expensesArray = Array.isArray(res.data)
         ? res.data
         : res.data?.data || res.data?.expenses || [];
-
-      console.log("Expenses array:", expensesArray);
-      console.log("Total expenses fetched:", expensesArray.length);
 
       setAllExpenses(expensesArray);
       setFilteredExpenses(expensesArray);
@@ -60,7 +53,7 @@ const Expenses = () => {
     }
   }, [location.pathname, location.key, fetchExpenses]);
 
-  // ✅ Refresh when window regains focus (user comes back to tab)
+  // ✅ Refresh when window regains focus
   useEffect(() => {
     const handleFocus = () => {
       if (location.pathname === "/expenses") {
@@ -104,9 +97,11 @@ const Expenses = () => {
             );
 
       setFilteredExpenses(newFiltered);
-      
-      // ✅ Adjust page if current page becomes empty after deletion
-      const newTotalPages = Math.max(1, Math.ceil(newFiltered.length / ITEMS_PER_PAGE));
+
+      const newTotalPages = Math.max(
+        1,
+        Math.ceil(newFiltered.length / ITEMS_PER_PAGE)
+      );
       if (page > newTotalPages) {
         setPage(newTotalPages);
       }
@@ -115,13 +110,50 @@ const Expenses = () => {
     }
   };
 
+  // 🔃 Sorting logic
+  const sortedExpenses = useMemo(() => {
+    const sorted = [...filteredExpenses];
+
+    switch (sortBy) {
+      case "date_asc":
+        return sorted.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() -
+            new Date(b.createdAt).getTime()
+        );
+      case "date_desc":
+        return sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
+      case "amount_asc":
+        return sorted.sort((a, b) => a.amount - b.amount);
+      case "amount_desc":
+        return sorted.sort((a, b) => b.amount - a.amount);
+      case "title_asc":
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      default:
+        return sorted;
+    }
+  }, [filteredExpenses, sortBy]);
+
+  // 📊 Summary
+  const totalAmount = useMemo(
+    () => sortedExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+    [sortedExpenses]
+  );
+
   // 📄 Pagination
-  const totalPages = Math.max(1, Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE)
+  );
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentExpenses = filteredExpenses.slice(startIndex, endIndex);
+  const currentExpenses = sortedExpenses.slice(startIndex, endIndex);
 
-  // ✅ Ensure page doesn't exceed total pages when expenses are deleted/filtered
+  // ✅ Ensure page is valid
   useEffect(() => {
     if (page > totalPages && totalPages > 0) {
       setPage(totalPages);
@@ -141,6 +173,7 @@ const Expenses = () => {
 
   return (
     <div>
+      {/* 🔝 Header */}
       <div
         style={{
           display: "flex",
@@ -151,29 +184,52 @@ const Expenses = () => {
       >
         <h2>My Expenses</h2>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={fetchExpenses} title="Refresh expenses">
-            🔄 Refresh
-          </button>
+          <button onClick={fetchExpenses}>🔄 Refresh</button>
           <button onClick={() => navigate("/create-expense")}>
             + Add Expense
           </button>
         </div>
       </div>
 
-      {/* 🎯 Category Filter */}
-      <select
-        value={category}
-        onChange={(e) => handleCategoryChange(e.target.value)}
-      >
-        <option value="all">All Categories</option>
-        <option value="travel">Travel</option>
-        <option value="food">Food</option>
-        <option value="drink">Drink</option>
-        <option value="cloths">Cloths</option>
-      </select>
+      {/* 📊 Summary */}
+      {sortedExpenses.length > 0 && (
+        <div
+          style={{
+            marginBottom: "15px",
+            padding: "10px",
+            border: "1px solid #333",
+            borderRadius: "8px",
+          }}
+        >
+          <strong>Total Expenses:</strong> {sortedExpenses.length} &nbsp; | &nbsp;
+          <strong>Total Spent:</strong> ₹{totalAmount}
+        </div>
+      )}
+
+      {/* 🎛 Filters & Sorting */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+        <select
+          value={category}
+          onChange={(e) => handleCategoryChange(e.target.value)}
+        >
+          <option value="all">All Categories</option>
+          <option value="travel">Travel</option>
+          <option value="food">Food</option>
+          <option value="drink">Drink</option>
+          <option value="cloths">Cloths</option>
+        </select>
+
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="date_desc">Newest First</option>
+          <option value="date_asc">Oldest First</option>
+          <option value="amount_desc">Amount: High → Low</option>
+          <option value="amount_asc">Amount: Low → High</option>
+          <option value="title_asc">Title: A → Z</option>
+        </select>
+      </div>
 
       {/* 📭 No Expenses */}
-      {filteredExpenses.length === 0 && (
+      {sortedExpenses.length === 0 && (
         <div>
           <h3>No expenses yet</h3>
           <p>Add your first expense to get started.</p>
@@ -202,42 +258,39 @@ const Expenses = () => {
       </ul>
 
       {/* ⏮ Pagination */}
-      {filteredExpenses.length > 0 && totalPages > 1 && (
-        <div style={{ marginTop: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+      {sortedExpenses.length > 0 && totalPages > 1 && (
+        <div
+          style={{
+            marginTop: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            style={{
-              padding: "8px 16px",
-              cursor: page === 1 ? "not-allowed" : "pointer",
-              opacity: page === 1 ? 0.5 : 1,
-            }}
           >
             Previous
           </button>
 
-          <span style={{ margin: "0 10px" }}>
-            Page {page} of {totalPages} ({filteredExpenses.length} total expenses)
+          <span>
+            Page {page} of {totalPages} ({sortedExpenses.length} total)
           </span>
 
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            style={{
-              padding: "8px 16px",
-              cursor: page >= totalPages ? "not-allowed" : "pointer",
-              opacity: page >= totalPages ? 0.5 : 1,
-            }}
           >
             Next
           </button>
         </div>
       )}
-      
-      {/* Show pagination info even when only one page */}
-      {filteredExpenses.length > 0 && totalPages === 1 && (
+
+      {/* ℹ Single page info */}
+      {sortedExpenses.length > 0 && totalPages === 1 && (
         <div style={{ marginTop: "20px", color: "#888" }}>
-          Showing all {filteredExpenses.length} expenses
+          Showing all {sortedExpenses.length} expenses
         </div>
       )}
     </div>
