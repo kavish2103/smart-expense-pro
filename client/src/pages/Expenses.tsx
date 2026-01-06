@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { deleteExpense, getExpenses } from "../api/expense.api";
+import ExpenseCharts from "../components/ExpenseCharts";
+
 
 type Expense = {
   id: string;
@@ -327,6 +329,11 @@ const Expenses = () => {
             ))}
           </ul>
         </div>
+      )}
+
+      {/* 📊 Charts */}
+      {sortedExpenses.length > 0 && (
+        <ExpenseCharts expenses={sortedExpenses} />
       )}
 
       {/* 🎛 Filters, Search & Sorting */}
