@@ -53,18 +53,6 @@ const Expenses = () => {
     }
   }, [location.pathname, location.key, fetchExpenses]);
 
-  // ✅ Refresh when window regains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      if (location.pathname === "/expenses") {
-        fetchExpenses();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
-  }, [location.pathname, fetchExpenses]);
-
   // 🎯 Filter by category
   const handleCategoryChange = (value: string) => {
     setCategory(value);
@@ -110,7 +98,7 @@ const Expenses = () => {
     }
   };
 
-  // 🔃 Sorting logic
+  // 🔃 Sorting
   const sortedExpenses = useMemo(() => {
     const sorted = [...filteredExpenses];
 
@@ -144,24 +132,28 @@ const Expenses = () => {
     [sortedExpenses]
   );
 
+  // 📊 Category Analytics
+  const categoryTotals = useMemo(() => {
+    const totals: Record<string, number> = {};
+    sortedExpenses.forEach((exp) => {
+      const cat = exp.category.toLowerCase();
+      totals[cat] = (totals[cat] || 0) + exp.amount;
+    });
+    return totals;
+  }, [sortedExpenses]);
+
   // 📄 Pagination
   const totalPages = Math.max(
     1,
     Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE)
   );
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentExpenses = sortedExpenses.slice(startIndex, endIndex);
-
-  // ✅ Ensure page is valid
-  useEffect(() => {
-    if (page > totalPages && totalPages > 0) {
-      setPage(totalPages);
-    }
-  }, [totalPages, page]);
+  const currentExpenses = sortedExpenses.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
 
   if (loading) return <p>Loading your expenses...</p>;
-
   if (error) {
     return (
       <div>
@@ -174,16 +166,9 @@ const Expenses = () => {
   return (
     <div>
       {/* 🔝 Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h2>My Expenses</h2>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div>
           <button onClick={fetchExpenses}>🔄 Refresh</button>
           <button onClick={() => navigate("/create-expense")}>
             + Add Expense
@@ -193,21 +178,34 @@ const Expenses = () => {
 
       {/* 📊 Summary */}
       {sortedExpenses.length > 0 && (
-        <div
-          style={{
-            marginBottom: "15px",
-            padding: "10px",
-            border: "1px solid #333",
-            borderRadius: "8px",
-          }}
-        >
+        <div style={{ margin: "10px 0", padding: "10px", border: "1px solid #333" }}>
           <strong>Total Expenses:</strong> {sortedExpenses.length} &nbsp; | &nbsp;
           <strong>Total Spent:</strong> ₹{totalAmount}
         </div>
       )}
 
+      {/* 📊 Category Analytics */}
+      {Object.keys(categoryTotals).length > 0 && (
+        <div
+          style={{
+            marginBottom: "15px",
+            padding: "10px",
+            border: "1px solid #333",
+          }}
+        >
+          <h3>Spending by Category</h3>
+          <ul>
+            {Object.entries(categoryTotals).map(([cat, total]) => (
+              <li key={cat}>
+                <strong>{cat.toUpperCase()}</strong> → ₹{total}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* 🎛 Filters & Sorting */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
         <select
           value={category}
           onChange={(e) => handleCategoryChange(e.target.value)}
@@ -228,69 +226,27 @@ const Expenses = () => {
         </select>
       </div>
 
-      {/* 📭 No Expenses */}
-      {sortedExpenses.length === 0 && (
-        <div>
-          <h3>No expenses yet</h3>
-          <p>Add your first expense to get started.</p>
-        </div>
-      )}
-
       {/* 📋 Expense List */}
       <ul>
         {currentExpenses.map((exp) => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> – ₹{exp.amount} ({exp.category})
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => navigate(`/expenses/edit/${exp.id}`)}
-            >
-              Edit
-            </button>
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => handleDelete(exp.id)}
-            >
-              Delete
-            </button>
+            <button onClick={() => navigate(`/expenses/edit/${exp.id}`)}>Edit</button>
+            <button onClick={() => handleDelete(exp.id)}>Delete</button>
           </li>
         ))}
       </ul>
 
       {/* ⏮ Pagination */}
-      {sortedExpenses.length > 0 && totalPages > 1 && (
-        <div
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-          }}
-        >
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          >
+      {totalPages > 1 && (
+        <div style={{ marginTop: "10px" }}>
+          <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             Previous
           </button>
-
-          <span>
-            Page {page} of {totalPages} ({sortedExpenses.length} total)
-          </span>
-
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-          >
+          <span> Page {page} of {totalPages} </span>
+          <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
             Next
           </button>
-        </div>
-      )}
-
-      {/* ℹ Single page info */}
-      {sortedExpenses.length > 0 && totalPages === 1 && (
-        <div style={{ marginTop: "20px", color: "#888" }}>
-          Showing all {sortedExpenses.length} expenses
         </div>
       )}
     </div>
