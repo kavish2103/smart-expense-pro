@@ -20,11 +20,12 @@ const Expenses = () => {
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("date_desc");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 🔁 Fetch expenses from API
+  // 🔁 Fetch expenses
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -46,27 +47,44 @@ const Expenses = () => {
     }
   }, []);
 
-  // ✅ Always refetch when coming to /expenses
+  // Always refetch on /expenses
   useEffect(() => {
     if (location.pathname === "/expenses") {
       fetchExpenses();
     }
   }, [location.pathname, location.key, fetchExpenses]);
 
-  // 🎯 Filter by category
-  const handleCategoryChange = (value: string) => {
-    setCategory(value);
-    setPage(1);
+  // Refresh when tab regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      if (location.pathname === "/expenses") {
+        fetchExpenses();
+      }
+    };
 
-    if (value === "all") {
-      setFilteredExpenses(allExpenses);
-    } else {
-      const filtered = allExpenses.filter(
-        (exp) => exp.category.toLowerCase() === value.toLowerCase()
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [location.pathname, fetchExpenses]);
+
+  // 🎯 Apply Category + Search Filters
+  useEffect(() => {
+    let result = [...allExpenses];
+
+    if (category !== "all") {
+      result = result.filter(
+        (exp) => exp.category.toLowerCase() === category.toLowerCase()
       );
-      setFilteredExpenses(filtered);
     }
-  };
+
+    if (search.trim() !== "") {
+      result = result.filter((exp) =>
+        exp.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFilteredExpenses(result);
+    setPage(1);
+  }, [category, search, allExpenses]);
 
   // ❌ Delete expense
   const handleDelete = async (id: string) => {
@@ -76,23 +94,6 @@ const Expenses = () => {
       await deleteExpense(id);
       const updated = allExpenses.filter((e) => e.id !== id);
       setAllExpenses(updated);
-
-      const newFiltered =
-        category === "all"
-          ? updated
-          : updated.filter(
-              (exp) => exp.category.toLowerCase() === category.toLowerCase()
-            );
-
-      setFilteredExpenses(newFiltered);
-
-      const newTotalPages = Math.max(
-        1,
-        Math.ceil(newFiltered.length / ITEMS_PER_PAGE)
-      );
-      if (page > newTotalPages) {
-        setPage(newTotalPages);
-      }
     } catch {
       alert("Failed to delete expense");
     }
@@ -153,7 +154,12 @@ const Expenses = () => {
     startIndex + ITEMS_PER_PAGE
   );
 
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
+
   if (loading) return <p>Loading your expenses...</p>;
+
   if (error) {
     return (
       <div>
@@ -166,9 +172,16 @@ const Expenses = () => {
   return (
     <div>
       {/* 🔝 Header */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
         <h2>My Expenses</h2>
-        <div>
+        <div style={{ display: "flex", gap: "10px" }}>
           <button onClick={fetchExpenses}>🔄 Refresh</button>
           <button onClick={() => navigate("/create-expense")}>
             + Add Expense
@@ -178,7 +191,14 @@ const Expenses = () => {
 
       {/* 📊 Summary */}
       {sortedExpenses.length > 0 && (
-        <div style={{ margin: "10px 0", padding: "10px", border: "1px solid #333" }}>
+        <div
+          style={{
+            marginBottom: "15px",
+            padding: "10px",
+            border: "1px solid #333",
+            borderRadius: "8px",
+          }}
+        >
           <strong>Total Expenses:</strong> {sortedExpenses.length} &nbsp; | &nbsp;
           <strong>Total Spent:</strong> ₹{totalAmount}
         </div>
@@ -189,8 +209,9 @@ const Expenses = () => {
         <div
           style={{
             marginBottom: "15px",
-            padding: "10px",
+            padding: "12px",
             border: "1px solid #333",
+            borderRadius: "8px",
           }}
         >
           <h3>Spending by Category</h3>
@@ -204,11 +225,11 @@ const Expenses = () => {
         </div>
       )}
 
-      {/* 🎛 Filters & Sorting */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+      {/* 🎛 Filters, Search & Sorting */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
         <select
           value={category}
-          onChange={(e) => handleCategoryChange(e.target.value)}
+          onChange={(e) => setCategory(e.target.value)}
         >
           <option value="all">All Categories</option>
           <option value="travel">Travel</option>
@@ -216,6 +237,14 @@ const Expenses = () => {
           <option value="drink">Drink</option>
           <option value="cloths">Cloths</option>
         </select>
+
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ padding: "6px", borderRadius: "6px", border: "1px solid #444" }}
+        />
 
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="date_desc">Newest First</option>
@@ -226,25 +255,60 @@ const Expenses = () => {
         </select>
       </div>
 
+      {/* 📭 No Expenses */}
+      {sortedExpenses.length === 0 && (
+        <div>
+          <h3>No expenses found</h3>
+          <p>Try changing filters or add a new expense.</p>
+        </div>
+      )}
+
       {/* 📋 Expense List */}
       <ul>
         {currentExpenses.map((exp) => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> – ₹{exp.amount} ({exp.category})
-            <button onClick={() => navigate(`/expenses/edit/${exp.id}`)}>Edit</button>
-            <button onClick={() => handleDelete(exp.id)}>Delete</button>
+            <button
+              style={{ marginLeft: "10px" }}
+              onClick={() => navigate(`/expenses/edit/${exp.id}`)}
+            >
+              Edit
+            </button>
+            <button
+              style={{ marginLeft: "10px" }}
+              onClick={() => handleDelete(exp.id)}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
 
       {/* ⏮ Pagination */}
-      {totalPages > 1 && (
-        <div style={{ marginTop: "10px" }}>
-          <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+      {sortedExpenses.length > 0 && totalPages > 1 && (
+        <div
+          style={{
+            marginTop: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          >
             Previous
           </button>
-          <span> Page {page} of {totalPages} </span>
-          <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+
+          <span>
+            Page {page} of {totalPages} ({sortedExpenses.length} total)
+          </span>
+
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          >
             Next
           </button>
         </div>
