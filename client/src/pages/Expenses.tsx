@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { deleteExpense, getExpenses } from "../api/expense.api";
 import ExpenseCharts from "../components/ExpenseCharts";
 
-
 type Expense = {
   id: string;
   title: string;
@@ -23,6 +22,8 @@ const Expenses = () => {
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("date_desc");
   const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -68,102 +69,85 @@ const Expenses = () => {
     return () => window.removeEventListener("focus", handleFocus);
   }, [location.pathname, fetchExpenses]);
 
+  // 📤 Export All
   const exportAllToCSV = () => {
     if (allExpenses.length === 0) {
       alert("No expenses to export");
       return;
     }
-  
+
     const headers = ["Title", "Amount", "Category", "Date"];
-  
     const rows = allExpenses.map((exp) => [
       exp.title,
       exp.amount,
       exp.category,
       new Date(exp.createdAt).toISOString().split("T")[0],
-
     ]);
-  
-    const csvContent = [
-      headers.join(","),           // Header row
-      ...rows.map((row) => row.join(",")), // Data rows
-    ].join("\n");
-  
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-  
+
     const link = document.createElement("a");
     link.href = url;
     link.download = "all-expenses.csv";
     link.click();
-  
     URL.revokeObjectURL(url);
   };
-  
+
+  // 📤 Export Filtered
   const handleExportFiltered = () => {
     if (sortedExpenses.length === 0) {
       alert("No expenses to export");
       return;
     }
-  
+
     const headers = ["Title", "Amount", "Category", "Date"];
-  
     const rows = sortedExpenses.map((exp) => [
       exp.title,
       exp.amount,
       exp.category,
-      new Date(exp.createdAt).toISOString().split("T")[0], // clean date
+      new Date(exp.createdAt).toISOString().split("T")[0],
     ]);
-  
-    const csvContent =
-      [headers, ...rows]
-        .map((row) => row.join(","))
-        .join("\n");
-  
+
+    const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-  
+
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "filtered-expenses.csv");
-    document.body.appendChild(link);
+    link.download = "filtered-expenses.csv";
     link.click();
-    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
+  // 📤 Export Page
   const handleExportPage = () => {
     if (currentExpenses.length === 0) {
       alert("No expenses on this page to export");
       return;
     }
-  
+
     const headers = ["Title", "Amount", "Category", "Date"];
-  
     const rows = currentExpenses.map((exp) => [
       exp.title,
       exp.amount,
       exp.category,
-      new Date(exp.createdAt).toISOString().split("T")[0], // formatted date
+      new Date(exp.createdAt).toISOString().split("T")[0],
     ]);
-  
-    const csvContent =
-      [headers, ...rows]
-        .map((row) => row.join(","))
-        .join("\n");
-  
+
+    const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-  
+
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `expenses-page-${page}.csv`);
-    document.body.appendChild(link);
+    link.download = `expenses-page-${page}.csv`;
     link.click();
-    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
-  
-  
-  // 🎯 Apply Category + Search Filters
+
+  // 🎯 Apply Category + Search + Date Filters
   useEffect(() => {
     let result = [...allExpenses];
 
@@ -179,11 +163,22 @@ const Expenses = () => {
       );
     }
 
+    if (fromDate) {
+      const from = new Date(fromDate);
+      result = result.filter((exp) => new Date(exp.createdAt) >= from);
+    }
+
+    if (toDate) {
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+      result = result.filter((exp) => new Date(exp.createdAt) <= to);
+    }
+
     setFilteredExpenses(result);
     setPage(1);
-  }, [category, search, allExpenses]);
+  }, [category, search, fromDate, toDate, allExpenses]);
 
-  // ❌ Delete expense
+  // ❌ Delete
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this expense?")) return;
 
@@ -241,15 +236,9 @@ const Expenses = () => {
   }, [sortedExpenses]);
 
   // 📄 Pagination
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE)
-  );
+  const totalPages = Math.max(1, Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE));
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const currentExpenses = sortedExpenses.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  const currentExpenses = sortedExpenses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -269,79 +258,31 @@ const Expenses = () => {
   return (
     <div>
       {/* 🔝 Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
         <h2>My Expenses</h2>
         <div style={{ display: "flex", gap: "10px" }}>
-  <button onClick={fetchExpenses}>🔄 Refresh</button>
-
-  <button onClick={exportAllToCSV}>
-    ⬇ Export All
-  </button>
-  <button onClick={handleExportFiltered}>⬇ Export Filtered</button>
-  <button onClick={handleExportPage}>⬇ Export Page</button>
-
-
-  <button onClick={() => navigate("/create-expense")}>
-    + Add Expense 
-  </button>
-</div>
-
+          <button onClick={fetchExpenses}>🔄 Refresh</button>
+          <button onClick={exportAllToCSV}>⬇ Export All</button>
+          <button onClick={handleExportFiltered}>⬇ Export Filtered</button>
+          <button onClick={handleExportPage}>⬇ Export Page</button>
+          <button onClick={() => navigate("/create-expense")}>+ Add Expense</button>
+        </div>
       </div>
 
       {/* 📊 Summary */}
       {sortedExpenses.length > 0 && (
-        <div
-          style={{
-            marginBottom: "15px",
-            padding: "10px",
-            border: "1px solid #333",
-            borderRadius: "8px",
-          }}
-        >
-          <strong>Total Expenses:</strong> {sortedExpenses.length} &nbsp; | &nbsp;
+        <div style={{ marginBottom: "15px", padding: "10px", border: "1px solid #333", borderRadius: "8px" }}>
+          <strong>Total Expenses:</strong> {sortedExpenses.length} |{" "}
           <strong>Total Spent:</strong> ₹{totalAmount}
         </div>
       )}
 
-      {/* 📊 Category Analytics */}
-      {Object.keys(categoryTotals).length > 0 && (
-        <div
-          style={{
-            marginBottom: "15px",
-            padding: "12px",
-            border: "1px solid #333",
-            borderRadius: "8px",
-          }}
-        >
-          <h3>Spending by Category</h3>
-          <ul>
-            {Object.entries(categoryTotals).map(([cat, total]) => (
-              <li key={cat}>
-                <strong>{cat.toUpperCase()}</strong> → ₹{total}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {/* 📊 Charts */}
-      {sortedExpenses.length > 0 && (
-        <ExpenseCharts expenses={sortedExpenses} />
-      )}
+      {sortedExpenses.length > 0 && <ExpenseCharts expenses={sortedExpenses} />}
 
-      {/* 🎛 Filters, Search & Sorting */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
+      {/* 🎛 Filters */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "15px", flexWrap: "wrap" }}>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="all">All Categories</option>
           <option value="travel">Travel</option>
           <option value="food">Food</option>
@@ -354,8 +295,16 @@ const Expenses = () => {
           placeholder="Search by title..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: "6px", borderRadius: "6px", border: "1px solid #444" }}
         />
+
+        <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+
+        {(fromDate || toDate) && (
+          <button onClick={() => { setFromDate(""); setToDate(""); }}>
+            Clear Dates
+          </button>
+        )}
 
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="date_desc">Newest First</option>
@@ -366,62 +315,23 @@ const Expenses = () => {
         </select>
       </div>
 
-      {/* 📭 No Expenses */}
-      {sortedExpenses.length === 0 && (
-        <div>
-          <h3>No expenses found</h3>
-          <p>Try changing filters or add a new expense.</p>
-        </div>
-      )}
-
-      {/* 📋 Expense List */}
+      {/* 📋 List */}
       <ul>
         {currentExpenses.map((exp) => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> – ₹{exp.amount} ({exp.category})
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => navigate(`/expenses/edit/${exp.id}`)}
-            >
-              Edit
-            </button>
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => handleDelete(exp.id)}
-            >
-              Delete
-            </button>
+            <button style={{ marginLeft: "10px" }} onClick={() => navigate(`/expenses/edit/${exp.id}`)}>Edit</button>
+            <button style={{ marginLeft: "10px" }} onClick={() => handleDelete(exp.id)}>Delete</button>
           </li>
         ))}
       </ul>
 
       {/* ⏮ Pagination */}
       {sortedExpenses.length > 0 && totalPages > 1 && (
-        <div
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-          }}
-        >
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          >
-            Previous
-          </button>
-
-          <span>
-            Page {page} of {totalPages} ({sortedExpenses.length} total)
-          </span>
-
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-          >
-            Next
-          </button>
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+          <button disabled={page === 1} onClick={() => setPage((p) => Math.max(p - 1, 1))}>Previous</button>
+          <span>Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(p + 1, totalPages))}>Next</button>
         </div>
       )}
     </div>
