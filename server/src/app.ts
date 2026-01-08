@@ -8,6 +8,7 @@ import healthRoutes from "./routes/health.route";
 import { logger } from "./middlewares/logger.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 import expenseRoutes from "./routes/expense.route";
+import aiRoutes from "./routes/ai.routes";
 
 import authRoutes from "./routes/auth.route";
 import { apiLimiter } from "./config/rateLimit";
@@ -24,6 +25,8 @@ app.use(logger);
 app.use(apiLimiter);
 app.use(healthRoutes);
 app.use(expenseRoutes);
+app.use("/api/ai", aiRoutes);
+
 app.use("/auth", authRoutes);
 app.use(errorHandler);
 
