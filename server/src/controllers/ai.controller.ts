@@ -10,30 +10,25 @@ export const getSpendingInsights = async (req: Request, res: Response) => {
 
     const modelName = "gemini-2.5-flash";
 
-    // ✅ 1. Get userId (later this will come from auth middleware)
-    const userId = (req as any).user?.id || req.body.userId;
+    // ✅ 1. Get userId ONLY from auth middleware
+    const userId = (req as any).user?.id;
 
-    // ✅ 2. Fetch expenses from DB if userId exists
-    let expenses: any[] = [];
-
-    if (userId) {
-      expenses = await prisma.expense.findMany({
-        where: { userId },
-        select: {
-          title: true,
-          amount: true,
-          category: true,
-          createdAt: true,
-        },
-      });
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
     }
 
-    // ✅ 3. Fallback to request body (so old testing still works)
-    if (!expenses || expenses.length === 0) {
-      expenses = req.body.expenses;
-    }
+    // ✅ 2. Fetch expenses from DB
+    const expenses = await prisma.expense.findMany({
+      where: { userId },
+      select: {
+        title: true,
+        amount: true,
+        category: true,
+        createdAt: true,
+      },
+    });
 
-    // ❌ If still no data, return error
+    // ❌ If user has no expenses
     if (!expenses || expenses.length === 0) {
       return res.status(400).json({
         error: "No expense data found to analyze",
@@ -63,6 +58,7 @@ Respond in short bullet points.
     return res.json({
       aiInsights: response.text,
     });
+
   } catch (error: any) {
     console.error("Gemini API Error:", error);
 
