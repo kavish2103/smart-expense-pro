@@ -1,69 +1,74 @@
+import { GoogleGenAI } from "@google/genai";
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 
 export const getSpendingInsights = async (req: Request, res: Response) => {
   try {
-    // For now we’ll assume 1 user (later we plug auth)
- 
-
-    // Fetch user expenses
-    const expenses = await prisma.expense.findMany({
-    
-      select: {
-        title: true,
-        amount: true,
-        category: true,
-        createdAt: true,
-      },
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
-    if (expenses.length === 0) {
-      return res.json({
-        message: "No expenses found to analyze.",
-        insights: [],
+    const modelName = "gemini-2.5-flash";
+
+    // ✅ 1. Get userId (later this will come from auth middleware)
+    const userId = (req as any).user?.id || req.body.userId;
+
+    // ✅ 2. Fetch expenses from DB if userId exists
+    let expenses: any[] = [];
+
+    if (userId) {
+      expenses = await prisma.expense.findMany({
+        where: { userId },
+        select: {
+          title: true,
+          amount: true,
+          category: true,
+          createdAt: true,
+        },
       });
     }
 
-    // 📊 Aggregate Data
-    let total = 0;
-    const categoryMap: Record<string, number> = {};
-    let highestExpense = expenses[0];
+    // ✅ 3. Fallback to request body (so old testing still works)
+    if (!expenses || expenses.length === 0) {
+      expenses = req.body.expenses;
+    }
 
-    expenses.forEach((exp) => {
-      total += exp.amount;
-      categoryMap[exp.category] =
-        (categoryMap[exp.category] || 0) + exp.amount;
+    // ❌ If still no data, return error
+    if (!expenses || expenses.length === 0) {
+      return res.status(400).json({
+        error: "No expense data found to analyze",
+      });
+    }
 
-      if (exp.amount > highestExpense.amount) {
-        highestExpense = exp;
-      }
+    const prompt = `
+You are a smart personal finance advisor.
+
+Here is the user's expense data:
+${JSON.stringify(expenses, null, 2)}
+
+Your tasks:
+1. Identify the top spending categories.
+2. Point out unnecessary or unusually high expenses.
+3. Suggest where the user can cut costs.
+4. Provide 3–5 clear, practical money-saving tips.
+
+Respond in short bullet points.
+`;
+
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
-
-    const categorySummary = Object.entries(categoryMap).map(
-      ([category, amount]) => ({
-        category,
-        amount,
-        percentage: ((amount / total) * 100).toFixed(1),
-      })
-    );
-
-    // 🧠 TEMPORARY MOCK AI (we'll plug real AI next step)
-    const insights = [
-      `Your total spending is ₹${total}.`,
-      `Your highest expense was "${highestExpense.title}" of ₹${highestExpense.amount}.`,
-      `You spent most on "${categorySummary[0].category}" which is ${categorySummary[0].percentage}% of your total.`,
-      `Try reducing your biggest category by 10–15% to save more.`,
-    ];
 
     return res.json({
-      total,
-      topCategory: categorySummary[0],
-      highestExpense,
-      categorySummary,
-      insights,
+      aiInsights: response.text,
     });
-  } catch (error) {
-    console.error("AI Insight Error:", error);
-    res.status(500).json({ error: "Failed to generate AI insights" });
+  } catch (error: any) {
+    console.error("Gemini API Error:", error);
+
+    return res.status(500).json({
+      error: "Failed to generate AI insights",
+      details: error.message || "Unknown error during AI generation",
+    });
   }
 };
