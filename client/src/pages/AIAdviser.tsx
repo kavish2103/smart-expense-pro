@@ -34,7 +34,7 @@ const AIAdviser = () => {
             {error && <p style={{ color: "red", marginTop: "20px" }}>{error}</p>}
 
             {insights && (
-                <div style={{ marginTop: "30px", padding: "20px", border: "1px solid #ccc", borderRadius: "8px", background: "#fff", lineHeight: "1.6" }}>
+                <div style={{ marginTop: "30px", padding: "20px", border: "1px solid #ccc", borderRadius: "8px", background: "#fff", color: "#333", lineHeight: "1.6" }}>
                     <h3>💡 Your Financial Insights</h3>
                     {/* Ensure you have a markdown renderer or just display text */}
                     {/* If react-markdown is not installed, we can fall back to simple whitespace preserving div */}
