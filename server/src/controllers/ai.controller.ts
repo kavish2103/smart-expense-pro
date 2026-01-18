@@ -4,8 +4,14 @@ import prisma from "../config/prisma";
 
 export const getSpendingInsights = async (req: Request, res: Response) => {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set");
+      return res.status(500).json({ error: "Server misconfiguration: GEMINI_API_KEY is missing" });
+    }
+
     const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
+      apiKey: apiKey,
     });
 
     const modelName = "gemini-2.5-flash";
@@ -60,7 +66,8 @@ Respond in short bullet points.
     });
 
   } catch (error: any) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error Detail:", JSON.stringify(error, null, 2));
+    console.error("Full Error Object:", error);
 
     return res.status(500).json({
       error: "Failed to generate AI insights",

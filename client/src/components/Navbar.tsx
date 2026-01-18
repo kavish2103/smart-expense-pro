@@ -17,6 +17,8 @@ const Navbar = () => {
       {token ? (
         <>
           <button onClick={() => navigate("/expenses")}>Expenses</button>
+          <button onClick={() => navigate("/summaries")}>Summaries</button>
+          <button onClick={() => navigate("/ai-adviser")}>AI Adviser</button>
           <button onClick={() => navigate("/create-expense")}>
             Add Expense
           </button>
