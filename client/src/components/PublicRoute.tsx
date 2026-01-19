@@ -6,7 +6,7 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
   const { token } = useAuth();
 
   if (token) {
-    return <Navigate to="/expenses" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

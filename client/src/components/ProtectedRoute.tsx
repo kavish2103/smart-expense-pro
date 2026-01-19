@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type React from "react";
 
-const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { token } = useAuth();
 
   if (!token) {
