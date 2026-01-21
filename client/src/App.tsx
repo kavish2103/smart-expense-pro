@@ -9,6 +9,7 @@ import EditExpense from "./pages/EditExpense";
 import Summaries from "./pages/Summaries";
 import AIAdviser from "./pages/AIAdviser";
 
+import Settings from "./pages/Settings";
 import Dashboard from "./pages/Dashboard";
 // Navbar removed
 
@@ -124,6 +125,15 @@ function App() {
           element={
             <ProtectedRoute>
               <AIAdviser />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />
