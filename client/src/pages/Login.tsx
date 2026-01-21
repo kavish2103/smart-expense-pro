@@ -23,7 +23,7 @@ const Login = () => {
         password,
       });
 
-      login(res.data.token);
+      login(res.data.token, email);
       navigate("/expenses");
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials");
