@@ -60,18 +60,28 @@ const ExpenseCharts = ({ expenses }: Props) => {
   };
 
   return (
-    <div style={{ marginBottom: "30px" }}>
-      <h3>📊 Expense Analytics</h3>
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6">
+        Analytics
+      </h3>
 
-      <div style={{ display: "flex", gap: "40px", flexWrap: "wrap" }}>
-        <div style={{ width: "300px" }}>
-          <h4>By Category</h4>
-          <Pie data={categoryData} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-col items-center">
+          <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            By Category
+          </h4>
+          <div className="w-full max-w-[300px]">
+            <Pie data={categoryData} />
+          </div>
         </div>
 
-        <div style={{ width: "500px" }}>
-          <h4>By Month</h4>
-          <Bar data={monthlyData} />
+        <div className="flex flex-col items-center">
+          <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            By Month
+          </h4>
+          <div className="w-full">
+            <Bar data={monthlyData} />
+          </div>
         </div>
       </div>
     </div>
