@@ -98,7 +98,7 @@ const TopNavbar = () => {
                         </button>
 
                         {isDropdownOpen && (
-                            <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                            <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50">
                                 <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Signed in as</p>
                                     <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{email}</p>
