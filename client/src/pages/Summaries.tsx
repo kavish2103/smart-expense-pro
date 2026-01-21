@@ -10,6 +10,8 @@ type Expense = {
     createdAt: string;
 };
 
+import DashboardLayout from "../components/DashboardLayout";
+
 const Summaries = () => {
     const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,27 +43,29 @@ const Summaries = () => {
         [allExpenses]
     );
 
-    if (loading) return <p>Loading summaries...</p>;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+    if (loading) return <DashboardLayout><p>Loading summaries...</p></DashboardLayout>;
+    if (error) return <DashboardLayout><p style={{ color: "red" }}>{error}</p></DashboardLayout>;
 
     return (
-        <div>
-            <h2>Expense Summaries</h2>
+        <DashboardLayout>
+            <div>
+                <h2>Expense Summaries</h2>
 
-            {allExpenses.length > 0 && (
-                <div style={{ marginBottom: "20px", padding: "15px", border: "1px solid #ddd", borderRadius: "8px", background: "#f9f9f9" }}>
-                    <h3>Total Overview</h3>
-                    <p><strong>Total Transactions:</strong> {allExpenses.length}</p>
-                    <p><strong>Total Spent:</strong> ₹{totalAmount}</p>
-                </div>
-            )}
+                {allExpenses.length > 0 && (
+                    <div style={{ marginBottom: "20px", padding: "15px", border: "1px solid #ddd", borderRadius: "8px", background: "#f9f9f9" }}>
+                        <h3>Total Overview</h3>
+                        <p><strong>Total Transactions:</strong> {allExpenses.length}</p>
+                        <p><strong>Total Spent:</strong> ₹{totalAmount}</p>
+                    </div>
+                )}
 
-            {allExpenses.length > 0 ? (
-                <ExpenseCharts expenses={allExpenses} />
-            ) : (
-                <p>No expenses found to summarize.</p>
-            )}
-        </div>
+                {allExpenses.length > 0 ? (
+                    <ExpenseCharts expenses={allExpenses} />
+                ) : (
+                    <p>No expenses found to summarize.</p>
+                )}
+            </div>
+        </DashboardLayout>
     );
 };
 

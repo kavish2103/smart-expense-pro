@@ -10,7 +10,8 @@ import Summaries from "./pages/Summaries";
 import AIAdviser from "./pages/AIAdviser";
 
 import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/Navbar";
+// Navbar removed
+
 
 function App() {
   return (
@@ -86,7 +87,6 @@ function App() {
           element={
             <ProtectedRoute>
               <>
-                <Navbar />
                 <CreateExpense />
               </>
             </ProtectedRoute>
@@ -97,7 +97,6 @@ function App() {
           path="/expenses"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Expenses />
             </ProtectedRoute>
           }
@@ -106,7 +105,6 @@ function App() {
           path="/expenses/edit/:id"
           element={
             <ProtectedRoute>
-              <Navbar />
               <EditExpense />
             </ProtectedRoute>
           }
@@ -116,7 +114,6 @@ function App() {
           path="/summaries"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Summaries />
             </ProtectedRoute>
           }
@@ -126,7 +123,6 @@ function App() {
           path="/ai-adviser"
           element={
             <ProtectedRoute>
-              <Navbar />
               <AIAdviser />
             </ProtectedRoute>
           }
@@ -137,7 +133,6 @@ function App() {
           path="/expenses/new"
           element={
             <ProtectedRoute>
-              <Navbar />
               <CreateExpense />
             </ProtectedRoute>
           }

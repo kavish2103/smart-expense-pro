@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getExpenses, updateExpense } from "../api/expense.api";
 
+import DashboardLayout from "../components/DashboardLayout";
+
 const EditExpense = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -57,35 +59,37 @@ const EditExpense = () => {
   if (loading) return <p>Loading expense...</p>;
 
   return (
-    <div>
-      <h2>Edit Expense</h2>
+    <DashboardLayout>
+      <div>
+        <h2>Edit Expense</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
 
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
+          <input
+            type="number"
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+          />
 
-        <input
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        />
+          <input
+            placeholder="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          />
 
-        <button type="submit">Update Expense</button>
-      </form>
-    </div>
+          <button type="submit">Update Expense</button>
+        </form>
+      </div>
+    </DashboardLayout>
   );
 };
 
