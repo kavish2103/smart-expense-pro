@@ -1,6 +1,18 @@
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Mail, LogOut, UserPlus, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const TopNavbar = () => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
     return (
         <header className="h-16 fixed top-0 right-0 left-0 md:left-64 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-40 px-6 flex items-center justify-between">
             {/* Search Bar */}
@@ -24,14 +36,63 @@ const TopNavbar = () => {
 
                 <div className="h-8 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
-                <button className="flex items-center gap-3 p-1 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-md">
-                        VP
-                    </div>
-                    <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-200">
-                        Profile
-                    </span>
-                </button>
+                {/* Profile / Mail Dropdown */}
+                <div className="relative">
+                    <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center gap-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                    >
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                            <Mail size={20} />
+                        </div>
+                    </button>
+
+                    {isDropdownOpen && (
+                        <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                            <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Signed in as</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">user@example.com</p>
+                            </div>
+
+                            <div className="p-2">
+                                <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    Switch Account
+                                </p>
+                                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors text-left">
+                                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+                                        JD
+                                    </div>
+                                    <div className="flex-1 truncate">
+                                        <p className="font-medium">Jane Doe</p>
+                                        <p className="text-xs text-gray-500">jane.doe@work.com</p>
+                                    </div>
+                                </button>
+                                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors mt-1">
+                                    <UserPlus size={16} />
+                                    <span>Add another account</span>
+                                </button>
+                            </div>
+
+                            <div className="p-2 border-t border-gray-100 dark:border-gray-700">
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                >
+                                    <LogOut size={16} />
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Overlay to close dropdown when clicking outside */}
+                {isDropdownOpen && (
+                    <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setIsDropdownOpen(false)}
+                    ></div>
+                )}
             </div>
         </header>
     );
