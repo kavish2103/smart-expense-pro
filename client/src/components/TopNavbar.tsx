@@ -1,4 +1,4 @@
-import { Search, Bell, Mail, LogOut, UserPlus, Lock, X } from "lucide-react";
+import { Bell, Mail, LogOut, UserPlus, Lock, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -64,18 +64,8 @@ const TopNavbar = () => {
 
     return (
         <>
-            <header className="h-16 fixed top-0 right-0 left-0 md:left-64 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-40 px-6 flex items-center justify-between">
-                {/* Search Bar */}
-                <div className="flex-1 max-w-xl">
-                    <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search expenses, categories, insights..."
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-gray-400 text-gray-700 dark:text-gray-200"
-                        />
-                    </div>
-                </div>
+            <header className="h-16 fixed top-0 right-0 left-0 md:left-64 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-40 px-6 flex items-center justify-end">
+                {/* Search Bar Removed */}
 
                 {/* Right Section */}
                 <div className="flex items-center gap-4 ml-4">
