@@ -21,7 +21,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors(corsConfig));
 
 app.use(express.json());
-app.use(logger); 
+app.use(logger);
 app.use(apiLimiter);
 app.use(healthRoutes);
 app.use(expenseRoutes);

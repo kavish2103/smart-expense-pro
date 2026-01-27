@@ -17,3 +17,11 @@ export const registerUser = async (
   });
   return res.data;
 };
+
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+  const res = await api.post("/auth/change-password", {
+    currentPassword,
+    newPassword
+  });
+  return res.data;
+};

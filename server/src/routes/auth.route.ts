@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { register, login } from "../controllers/auth.controller";
+import { register, login, changePassword } from "../controllers/auth.controller";
 import { validate } from "../middlewares/validate.middleware";
-import { registerSchema, loginSchema } from "../schemas/auth.schema";
+import { registerSchema, loginSchema, changePasswordSchema } from "../schemas/auth.schema";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 /**
@@ -65,5 +66,42 @@ router.post("/register", validate(registerSchema), register);
  */
 
 router.post("/login", validate(loginSchema), login);
+
+/**
+ * @swagger
+ * /auth/change-password:
+ *   post:
+ *     summary: Change user password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       400:
+ *         description: Incorrect current password
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+    "/change-password",
+    authMiddleware,
+    validate(changePasswordSchema),
+    changePassword
+);
 
 export default router;

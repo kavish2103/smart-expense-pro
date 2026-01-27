@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
-import { User, Moon, Sun, Trash2, Info, Check, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { User, Trash2, Info, Check, Shield } from "lucide-react";
+import ChangePasswordModal from "../components/settings/ChangePasswordModal";
 
 const Settings = () => {
-    const { email, logout } = useAuth();
-    const navigate = useNavigate();
-    const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+    const { email } = useAuth();
+    const [theme] = useState(localStorage.getItem("theme") || "light");
     const [showClearSuccess, setShowClearSuccess] = useState(false);
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     useEffect(() => {
         if (theme === "dark") {
@@ -19,9 +19,7 @@ const Settings = () => {
         localStorage.setItem("theme", theme);
     }, [theme]);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === "light" ? "dark" : "light");
-    };
+
 
     const handleClearData = () => {
         if (window.confirm("Are you sure you want to clear cached data? This will not delete your account but resets local settings.")) {
@@ -83,38 +81,17 @@ const Settings = () => {
                                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Password</p>
                                     <p className="text-gray-900 dark:text-white font-medium mt-1">••••••••</p>
                                 </div>
-                                <button className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors">
+                                <button
+                                    onClick={() => setIsChangePasswordOpen(true)}
+                                    className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+                                >
                                     Change
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Appearance Section */}
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
-                            {theme === 'dark' ? <Moon className="text-purple-500" size={24} /> : <Sun className="text-orange-500" size={24} />}
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Appearance</h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium text-gray-900 dark:text-white">Dark Mode</p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Adjust the appearance of the application</p>
-                                </div>
-                                <button
-                                    onClick={toggleTheme}
-                                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${theme === 'dark' ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+
 
                     {/* Data & System Section */}
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -149,6 +126,10 @@ const Settings = () => {
 
                 </div>
             </div>
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
         </DashboardLayout>
     );
 };
