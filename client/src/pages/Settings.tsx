@@ -3,12 +3,14 @@ import DashboardLayout from "../components/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import { User, Trash2, Info, Check, Shield } from "lucide-react";
 import ChangePasswordModal from "../components/settings/ChangePasswordModal";
+import EditProfileModal from "../components/settings/EditProfileModal";
 
 const Settings = () => {
-    const { email } = useAuth();
+    const { email, name } = useAuth();
     const [theme] = useState(localStorage.getItem("theme") || "light");
     const [showClearSuccess, setShowClearSuccess] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
     useEffect(() => {
         if (theme === "dark") {
@@ -69,12 +71,21 @@ const Settings = () => {
                         <div className="p-6 space-y-4">
                             <div className="flex items-center justify-between py-2">
                                 <div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</p>
+                                    <p className="text-gray-900 dark:text-white font-medium mt-1">{name || "Not set"}</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsEditProfileOpen(true)}
+                                    className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+                                >
+                                    Edit Profile
+                                </button>
+                            </div>
+                            <div className="flex items-center justify-between py-2">
+                                <div>
                                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email Address</p>
                                     <p className="text-gray-900 dark:text-white font-medium mt-1">{email}</p>
                                 </div>
-                                <button className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors">
-                                    Edit Profile
-                                </button>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <div>
@@ -129,6 +140,10 @@ const Settings = () => {
             <ChangePasswordModal
                 isOpen={isChangePasswordOpen}
                 onClose={() => setIsChangePasswordOpen(false)}
+            />
+            <EditProfileModal
+                isOpen={isEditProfileOpen}
+                onClose={() => setIsEditProfileOpen(false)}
             />
         </DashboardLayout>
     );

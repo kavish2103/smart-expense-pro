@@ -5,7 +5,7 @@ import prisma from "../config/prisma";
 import { env } from "../config/env";
 
 export const register = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -13,12 +13,13 @@ export const register = async (req: Request, res: Response) => {
     data: {
       email,
       password: hashedPassword,
+      name,
     },
   });
 
   res.status(201).json({
     message: "User registered successfully",
-    data: { id: user.id, email: user.email },
+    data: { id: user.id, email: user.email, name: user.name },
   });
 };
 
@@ -44,6 +45,7 @@ export const login = async (req: Request, res: Response) => {
   res.json({
     message: "Login successful",
     token,
+    user: { id: user.id, email: user.email, name: user.name },
   });
 };
 
@@ -73,4 +75,35 @@ export const changePassword = async (req: Request, res: Response) => {
   });
 
   res.json({ message: "Password updated successfully" });
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const { name, email } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name,
+        email,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
+
+    res.json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Failed to update profile. Email might be taken." });
+  }
 };

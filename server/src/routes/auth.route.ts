@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { register, login, changePassword } from "../controllers/auth.controller";
+import { register, login, changePassword, updateProfile } from "../controllers/auth.controller";
 import { validate } from "../middlewares/validate.middleware";
-import { registerSchema, loginSchema, changePasswordSchema } from "../schemas/auth.schema";
+import { registerSchema, loginSchema, changePasswordSchema, updateProfileSchema } from "../schemas/auth.schema";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -102,6 +102,35 @@ router.post(
     authMiddleware,
     validate(changePasswordSchema),
     changePassword
+);
+
+/**
+ * @swagger
+ * /auth/profile:
+ *   patch:
+ *     summary: Update user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.patch(
+    "/profile",
+    authMiddleware,
+    validate(updateProfileSchema),
+    updateProfile
 );
 
 export default router;

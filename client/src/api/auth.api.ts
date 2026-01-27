@@ -25,3 +25,12 @@ export const changePassword = async (currentPassword: string, newPassword: strin
   });
   return res.data;
 };
+
+
+export const updateProfile = async (name: string, email: string) => {
+  const res = await api.patch("/auth/profile", {
+    name,
+    email
+  });
+  return res.data;
+};
