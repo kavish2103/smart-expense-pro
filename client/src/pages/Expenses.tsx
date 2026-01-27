@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { deleteExpense, getExpenses } from "../api/expense.api";
-import ExpenseCharts from "../components/ExpenseCharts";
 import DashboardLayout from "../components/DashboardLayout";
 
 type Expense = {
@@ -309,7 +308,7 @@ const Expenses = () => {
         )}
 
         {/* 📊 Charts */}
-        {sortedExpenses.length > 0 && <ExpenseCharts expenses={sortedExpenses} />}
+
 
         {/* 🎛 Filters */}
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
