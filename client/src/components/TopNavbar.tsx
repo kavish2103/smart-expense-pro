@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth.api";
+import NotificationDropdown from "./NotificationDropdown";
 
 const TopNavbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const { logout, email, login } = useAuth();
     const navigate = useNavigate();
 
@@ -38,6 +40,7 @@ const TopNavbar = () => {
         setSwitchPassword("");
         setSwitchError("");
         setIsDropdownOpen(false);
+        setIsNotificationOpen(false);
         setShowPasswordModal(true);
     };
 
@@ -69,10 +72,24 @@ const TopNavbar = () => {
 
                 {/* Right Section */}
                 <div className="flex items-center gap-4 ml-4">
-                    <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <Bell size={20} className="text-gray-600 dark:text-gray-300" />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-gray-900"></span>
-                    </button>
+                    {/* Notification Bell */}
+                    <div className="relative">
+                        <button
+                            onClick={() => {
+                                setIsNotificationOpen(!isNotificationOpen);
+                                setIsDropdownOpen(false);
+                            }}
+                            className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+                            {/* We could fetch unread count here conceptually, but for now just showing dot implies updates */}
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-gray-900 animate-pulse"></span>
+                        </button>
+                        <NotificationDropdown
+                            isOpen={isNotificationOpen}
+                            onClose={() => setIsNotificationOpen(false)}
+                        />
+                    </div>
 
                     <div className="h-8 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
@@ -142,10 +159,13 @@ const TopNavbar = () => {
                     </div>
 
                     {/* Overlay to close dropdown when clicking outside */}
-                    {isDropdownOpen && (
+                    {(isDropdownOpen || isNotificationOpen) && (
                         <div
                             className="fixed inset-0 z-30"
-                            onClick={() => setIsDropdownOpen(false)}
+                            onClick={() => {
+                                setIsDropdownOpen(false);
+                                setIsNotificationOpen(false);
+                            }}
                         ></div>
                     )}
                 </div>
