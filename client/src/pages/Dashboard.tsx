@@ -14,7 +14,15 @@ const Dashboard = () => {
 
     const fetchStats = async () => {
         try {
+            console.log("Fetching stats...");
             const res = await getDashboardStats();
+            console.log("Stats received:", res.data);
+
+            if (!res.data || !res.data.summary) {
+                alert("Debug: API returned empty data structure");
+                return;
+            }
+
             setStats(res.data.summary);
             setBudgets(res.data.budgets || []);
         } catch (error) {

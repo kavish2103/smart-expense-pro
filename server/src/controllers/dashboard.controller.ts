@@ -95,9 +95,11 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
 
         // 5. 🎯 Budgets & Remaining Limits
+        console.log("Fetching budgets...");
         const budgets = await prisma.budget.findMany({
             where: { userId }
         });
+        console.log("Budgets found:", budgets.length);
 
         // Calculate spend per category
         const allCategorySpend = await prisma.expense.groupBy({
@@ -129,6 +131,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         const totalSpentInBudgets = budgetStatus.reduce((sum, b) => sum + b.spent, 0);
         const totalBudgetRemaining = Math.max(0, totalBudgetLimit - totalSpentInBudgets);
 
+        console.log("Sending response...");
         res.json({
             summary: {
                 totalSpent,
@@ -143,7 +146,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.error("Dashboard stats error:", error);
+        console.error("Dashboard stats error DETAIL:", error); // Enhanced logging
         res.status(500).json({ message: "Failed to fetch dashboard stats", error });
     }
 };
