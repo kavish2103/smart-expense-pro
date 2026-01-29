@@ -11,6 +11,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     const fetchStats = async () => {
+        setLoading(true);
         try {
             console.log("Fetching stats...");
             const res = await getDashboardStats();
@@ -56,8 +57,12 @@ const Dashboard = () => {
                         <div>
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-gray-800 dark:text-white">Category Budgets</h3>
-                                <button onClick={fetchStats} className="text-sm text-indigo-600 hover:underline">
-                                    Refresh
+                                <button
+                                    onClick={fetchStats}
+                                    disabled={loading}
+                                    className="text-sm text-indigo-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? "Refreshing..." : "Refresh"}
                                 </button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
