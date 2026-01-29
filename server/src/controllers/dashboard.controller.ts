@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "../generated/prisma";
-
-const prisma = new PrismaClient();
+import prisma from "../config/prisma";
 
 export const getDashboardStats = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.userId;
+        const userId = (req as any).user.id;
 
         // 📅 Date Ranges
         const now = new Date();

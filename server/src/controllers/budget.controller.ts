@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "../generated/prisma";
-
-const prisma = new PrismaClient();
+import prisma from "../config/prisma";
 
 export const getBudgets = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.userId;
+        const userId = (req as any).user.id;
         const budgets = await prisma.budget.findMany({
             where: { userId },
         });
@@ -17,7 +15,7 @@ export const getBudgets = async (req: Request, res: Response) => {
 
 export const setBudget = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.userId;
+        const userId = (req as any).user.id;
         const { category, amount } = req.body;
 
         const budget = await prisma.budget.upsert({
