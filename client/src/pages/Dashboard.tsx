@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import HeaderSummary from "../components/dashboard/HeaderSummary";
 import SummaryCards from "../components/dashboard/SummaryCards";
-import OverviewChart from "../components/dashboard/OverviewChart";
-import AIAdvisorCard from "../components/dashboard/AIAdvisorCard";
 import BudgetCard from "../components/dashboard/BudgetCard";
 import { getDashboardStats } from "../api/dashboard.api";
 
@@ -64,11 +62,8 @@ const Dashboard = () => {
                 <SummaryCards stats={stats} loading={loading} />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Charts Section */}
+                    {/* Budget Section (Main) */}
                     <div className="lg:col-span-2 space-y-6">
-                        <OverviewChart />
-
-                        {/* Budget Section */}
                         <div>
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-gray-800 dark:text-white">Category Budgets</h3>
@@ -88,10 +83,8 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* AI & Side Widgets */}
+                    {/* Side Widgets */}
                     <div className="lg:col-span-1 space-y-6">
-                        <AIAdvisorCard />
-
                         {/* Remaining Budgets (Overflow) */}
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             <h4 className="text-sm font-semibold text-gray-500 mb-3">Other Categories</h4>
