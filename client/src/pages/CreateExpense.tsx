@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createExpense } from "../api/expense.api";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
-import { DollarSign, Tag, Type, Save, ArrowLeft } from "lucide-react";
+import { IndianRupee, Tag, Type, Save, ArrowLeft } from "lucide-react";
 
 const CreateExpense = () => {
   const [title, setTitle] = useState("");
@@ -90,7 +90,7 @@ const CreateExpense = () => {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <DollarSign className="text-gray-400" size={18} />
+                    <IndianRupee className="text-gray-400" size={18} />
                   </div>
                   <input
                     type="number"
