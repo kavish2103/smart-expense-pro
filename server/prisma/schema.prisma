@@ -36,6 +36,7 @@ model User {
 
   expenses  Expense[]
   notifications Notification[]
+  budgets       Budget[]
 }
 
 model Notification {
@@ -48,4 +49,17 @@ model Notification {
 
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  category  String
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, category])
 }
