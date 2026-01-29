@@ -331,6 +331,11 @@ const Expenses = () => {
               <option value="food">Food</option>
               <option value="drink">Drink</option>
               <option value="cloths">Cloths</option>
+              <option value="bills">Bills</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="shopping">Shopping</option>
+              <option value="housing">Housing</option>
+              <option value="health">Health</option>
             </select>
 
             <input
