@@ -111,17 +111,35 @@ export const getDashboardStats = async (req: Request, res: Response) => {
             }
         });
 
-        const budgetStatus = budgets.map(budget => {
-            // Case-insensitive matching: Sum up all expense groupings that match the budget category name
+        // MERGE: Create a Set of all unique categories from both Budgets and Expenses
+        // This ensures we show categories that have a budget set OR have expenses this month
+        const allCategories = new Set<string>([
+            ...budgets.map(b => b.category.toLowerCase()),
+            ...allCategorySpend.map(c => c.category.toLowerCase())
+        ]);
+
+        const budgetStatus = Array.from(allCategories).map(lowerCaseCat => {
+            // Find the canonical name (prefer Budget casing, then Expense casing)
+            const budgetMatch = budgets.find(b => b.category.toLowerCase() === lowerCaseCat);
+            const expenseMatch = allCategorySpend.find(c => c.category.toLowerCase() === lowerCaseCat);
+
+            // Use the prettier name (e.g. "Food" instead of "food")
+            const categoryName = budgetMatch?.category || expenseMatch?.category || lowerCaseCat;
+            const amount = budgetMatch?.amount || 0; // Budget limit
+
+            // Calculate spent amount
             const spent = allCategorySpend
-                .filter(c => c.category.toLowerCase() === budget.category.toLowerCase())
+                .filter(c => c.category.toLowerCase() === lowerCaseCat)
                 .reduce((total, current) => total + (current._sum.amount || 0), 0);
 
             return {
-                ...budget,
+                id: budgetMatch?.id || `temp-${lowerCaseCat}`, // Fallback ID for non-budgeted
+                userId,
+                category: categoryName,
+                amount,
                 spent,
-                remaining: Math.max(0, budget.amount - spent),
-                progress: Math.min(100, (spent / budget.amount) * 100)
+                remaining: Math.max(0, amount - spent),
+                progress: amount > 0 ? Math.min(100, (spent / amount) * 100) : (spent > 0 ? 100 : 0) // 100% if spent > 0 but no budget
             }
         });
 

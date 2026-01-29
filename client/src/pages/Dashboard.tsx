@@ -34,25 +34,9 @@ const Dashboard = () => {
         fetchStats();
     }, []);
 
-    // Default categories if no budgets set
-    // Default categories if no budgets set
-    const defaultCategories = [
-        "Food", "Travel", "Entertainment", "Housing", "Bills", "Shopping",
-        "Drink", "Cloths", "Health", "Education", "Personal", "Transportation",
-        "Utilities", "Insurance", "Groceries", "Rent", "Investment"
-    ];
-
-    // Merge existing budgets with defaults to allow setting new ones
-    const budgetList = defaultCategories.map(cat => {
-        const existing = budgets.find((b: any) => b.category.toLowerCase() === cat.toLowerCase());
-        return existing || {
-            category: cat,
-            amount: 0,
-            spent: 0,
-            remaining: 0,
-            progress: 0
-        };
-    });
+    // Dynamic Budget List (from API)
+    // The API now returns a merged list of all categories that have a budget OR expenses
+    const budgetList = budgets;
 
     return (
         <DashboardLayout>
