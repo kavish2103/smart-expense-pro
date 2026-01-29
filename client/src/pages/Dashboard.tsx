@@ -35,7 +35,12 @@ const Dashboard = () => {
     }, []);
 
     // Default categories if no budgets set
-    const defaultCategories = ["Food", "Travel", "Entertainment", "Housing", "Bills", "Shopping"];
+    // Default categories if no budgets set
+    const defaultCategories = [
+        "Food", "Travel", "Entertainment", "Housing", "Bills", "Shopping",
+        "Drink", "Cloths", "Health", "Education", "Personal", "Transportation",
+        "Utilities", "Insurance", "Groceries", "Rent", "Investment"
+    ];
 
     // Merge existing budgets with defaults to allow setting new ones
     const budgetList = defaultCategories.map(cat => {
@@ -88,7 +93,7 @@ const Dashboard = () => {
                         {/* Remaining Budgets (Overflow) */}
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             <h4 className="text-sm font-semibold text-gray-500 mb-3">Other Categories</h4>
-                            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                            <div className="space-y-3 max-h-96 overflow-y-auto pr-2 overscroll-contain">
                                 {budgetList.slice(4).map((budget: any) => (
                                     <BudgetCard
                                         key={budget.category}
