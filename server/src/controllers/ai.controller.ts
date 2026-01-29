@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
+import { createNotification } from "./notification.controller";
 
 export const getSpendingInsights = async (req: Request, res: Response) => {
   try {
@@ -64,6 +65,16 @@ Respond in short bullet points.
     return res.json({
       aiInsights: response.text,
     });
+
+    // Notification Trigger: AI Insights
+    await createNotification(
+      userId,
+      "New AI Insights",
+      "We've analyzed your latest expenses. Check out the new financial advice!",
+      "INFO"
+    );
+
+    return;
 
   } catch (error: any) {
     console.error("Gemini API Error Detail:", JSON.stringify(error, null, 2));

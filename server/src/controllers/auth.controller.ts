@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../config/prisma";
 import { env } from "../config/env";
+import { createNotification } from "./notification.controller";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
@@ -75,6 +76,13 @@ export const changePassword = async (req: Request, res: Response) => {
   });
 
   res.json({ message: "Password updated successfully" });
+
+  await createNotification(
+    userId,
+    "Security Alert",
+    "Your password was changed successfully.",
+    "SUCCESS"
+  );
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
@@ -103,6 +111,13 @@ export const updateProfile = async (req: Request, res: Response) => {
       message: "Profile updated successfully",
       user,
     });
+
+    await createNotification(
+      userId,
+      "Profile Updated",
+      "Your account profile information has been updated.",
+      "INFO"
+    );
   } catch (error) {
     res.status(400).json({ message: "Failed to update profile. Email might be taken." });
   }

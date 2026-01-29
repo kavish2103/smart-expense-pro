@@ -5,6 +5,7 @@ import {
     BrainCircuit,
     TrendingUp,
     Settings,
+    Bell,
     LogOut
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -19,6 +20,7 @@ const Sidebar = () => {
         { name: "Expenses", icon: Receipt, path: "/expenses" },
         { name: "AI Advisor", icon: BrainCircuit, path: "/ai-adviser" },
         { name: "Summary", icon: TrendingUp, path: "/summaries" },
+        { name: "Notifications", icon: Bell, path: "/notifications" },
         { name: "Settings", icon: Settings, path: "/settings" },
     ];
 

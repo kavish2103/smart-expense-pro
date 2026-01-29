@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
+import { createNotification } from "./notification.controller";
 
 export const createExpense = async (req: Request, res: Response) => {
   const expense = await prisma.expense.create({
@@ -10,9 +11,18 @@ export const createExpense = async (req: Request, res: Response) => {
       userId: req.user!.id,
     },
   });
-  
 
-  res.status(201).json({  
+  // Notification Trigger: High Expense
+  if (req.body.amount > 500) {
+    await createNotification(
+      req.user!.id,
+      "High Expense Alert",
+      `You just recorded an expense of ₹${req.body.amount} for ${req.body.category}.`,
+      "WARNING"
+    );
+  }
+
+  res.status(201).json({
     message: "Expense created successfully",
     data: expense,
   });
@@ -33,7 +43,7 @@ export const getExpenses = async (req: Request, res: Response) => {
 
     // Base WHERE clause (important for Task 16)
     const where: any = {
-      userId: req.user.id, 
+      userId: req.user.id,
     };
 
     if (category) {
