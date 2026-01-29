@@ -112,7 +112,11 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         });
 
         const budgetStatus = budgets.map(budget => {
-            const spent = allCategorySpend.find(c => c.category === budget.category)?._sum.amount || 0;
+            // Case-insensitive matching: Sum up all expense groupings that match the budget category name
+            const spent = allCategorySpend
+                .filter(c => c.category.toLowerCase() === budget.category.toLowerCase())
+                .reduce((total, current) => total + (current._sum.amount || 0), 0);
+
             return {
                 ...budget,
                 spent,
