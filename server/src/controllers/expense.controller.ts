@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { createNotification } from "./notification.controller";
+import { checkBudgetThresholds, checkFrequentSpending } from "../utils/budget.utils";
 
 export const createExpense = async (req: Request, res: Response) => {
   const expense = await prisma.expense.create({
@@ -13,13 +14,19 @@ export const createExpense = async (req: Request, res: Response) => {
   });
 
   // Notification Trigger: High Expense
-  if (req.body.amount > 500) {
-    await createNotification(
-      req.user!.id,
-      "High Expense Alert",
-      `You just recorded an expense of ₹${req.body.amount} for ${req.body.category}.`,
-      "WARNING"
-    );
+  await createNotification(
+    req.user!.id,
+    "High Expense Alert",
+    `You just recorded an expense of ₹${req.body.amount} for ${req.body.category}.`,
+    "WARNING"
+  );
+  // ✅ New Smart Checks (Fire & Forget or Await - Using await for safety)
+  try {
+    await checkBudgetThresholds(req.user!.id, Number(req.body.amount), req.body.category);
+    await checkFrequentSpending(req.user!.id);
+  } catch (err) {
+    console.error("Error in smart budget checks:", err);
+    // We don't block the response even if checks fail
   }
 
   res.status(201).json({

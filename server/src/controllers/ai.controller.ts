@@ -62,8 +62,14 @@ Respond in short bullet points.
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
-    return res.json({
-      aiInsights: response.text,
+    const aiInsightText = response.text || "";
+
+    // ✅ 3. Save to History
+    await prisma.aIInsight.create({
+      data: {
+        userId,
+        summary: aiInsightText,
+      },
     });
 
     // Notification Trigger: AI Insights
@@ -74,7 +80,9 @@ Respond in short bullet points.
       "INFO"
     );
 
-    return;
+    return res.json({
+      aiInsights: aiInsightText,
+    });
 
   } catch (error: any) {
     console.error("Gemini API Error Detail:", JSON.stringify(error, null, 2));
@@ -84,5 +92,30 @@ Respond in short bullet points.
       error: "Failed to generate AI insights",
       details: error.message || "Unknown error during AI generation",
     });
+  }
+};
+
+export const getHistory = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const history = await prisma.aIInsight.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        summary: true,
+        createdAt: true,
+      }
+    });
+
+    return res.json(history);
+  } catch (error: any) {
+    console.error("Error fetching AI history:", error);
+    return res.status(500).json({ error: "Failed to fetch AI history" });
   }
 };

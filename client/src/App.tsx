@@ -8,6 +8,7 @@ import PublicRoute from "./components/PublicRoute";
 import EditExpense from "./pages/EditExpense";
 import Summaries from "./pages/Summaries";
 import AIAdviser from "./pages/AIAdviser";
+import AIInsightsHistory from "./pages/AIInsightsHistory";
 
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
@@ -126,6 +127,15 @@ function App() {
           element={
             <ProtectedRoute>
               <AIAdviser />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ai-history"
+          element={
+            <ProtectedRoute>
+              <AIInsightsHistory />
             </ProtectedRoute>
           }
         />
