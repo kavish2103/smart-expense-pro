@@ -1,11 +1,15 @@
-import { Bell, Mail, LogOut, UserPlus, Lock, X } from "lucide-react";
+import { Bell, Mail, LogOut, UserPlus, Lock, X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth.api";
 import NotificationDropdown from "./NotificationDropdown";
 
-const TopNavbar = () => {
+interface TopNavbarProps {
+    onMenuClick: () => void;
+}
+
+const TopNavbar = ({ onMenuClick }: TopNavbarProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const { logout, email, login } = useAuth();
@@ -67,8 +71,14 @@ const TopNavbar = () => {
 
     return (
         <>
-            <header className="h-16 fixed top-0 right-0 left-0 md:left-64 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-40 px-6 flex items-center justify-end">
-                {/* Search Bar Removed */}
+            <header className="h-16 fixed top-0 right-0 left-0 md:left-64 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-40 px-6 flex items-center justify-between md:justify-end">
+                {/* Mobile Menu Button */}
+                <button
+                    onClick={onMenuClick}
+                    className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                    <Menu size={24} />
+                </button>
 
                 {/* Right Section */}
                 <div className="flex items-center gap-4 ml-4">
