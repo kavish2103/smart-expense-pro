@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "prisma generate && node -e \"require('fs').mkdirSync('public', {recursive: true})\"",
+    "build": "prisma generate",
     "postinstall": "prisma generate",
     "start": "node dist/index.js"
   },
