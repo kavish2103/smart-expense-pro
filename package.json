@@ -1,0 +1,11 @@
+{
+    "name": "smart-expense-pro-root",
+    "private": true,
+    "scripts": {
+        "build": "echo 'Monorepo Root Build'"
+    },
+    "workspaces": [
+        "client",
+        "server"
+    ]
+}
