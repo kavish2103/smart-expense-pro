@@ -48,62 +48,62 @@ const router = Router();
  *         description: Expense created
  */
 
-router.post("/expenses", authMiddleware,
+router.post("/", authMiddleware,
   validate(createExpenseSchema), createExpense);
 
-  /**
- * @swagger
- * /expenses:
- *   get:
- *     summary: Get all expenses for logged-in user
- *     tags: [Expenses]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: number
- *     responses:
- *       200:
- *         description: List of expenses
- */
+/**
+* @swagger
+* /expenses:
+*   get:
+*     summary: Get all expenses for logged-in user
+*     tags: [Expenses]
+*     security:
+*       - bearerAuth: []
+*     parameters:
+*       - in: query
+*         name: page
+*         schema:
+*           type: number
+*       - in: query
+*         name: limit
+*         schema:
+*           type: number
+*     responses:
+*       200:
+*         description: List of expenses
+*/
 
-router.get("/expenses",authMiddleware,
+router.get("/", authMiddleware,
   getExpenses);
 
-  /**
- * @swagger
- * /expenses/{id}:
- *   put:
- *     summary: Update an expense
- *     tags: [Expenses]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Expense updated
- */
+/**
+* @swagger
+* /expenses/{id}:
+*   put:
+*     summary: Update an expense
+*     tags: [Expenses]
+*     security:
+*       - bearerAuth: []
+*     parameters:
+*       - in: path
+*         name: id
+*         required: true
+*         schema:
+*           type: string
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*     responses:
+*       200:
+*         description: Expense updated
+*/
 
 
 router.put(
-  "/expenses/:id",
+  "/:id",
   authMiddleware,
 
   validate(updateExpenseSchema),
@@ -129,7 +129,7 @@ router.put(
  *         description: Expense deleted
  */
 
-router.delete("/expenses/:id",authMiddleware,
+router.delete("/:id", authMiddleware,
   deleteExpense);
 
 export default router;

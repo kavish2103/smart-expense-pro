@@ -7,7 +7,6 @@ import express from "express";
 import healthRoutes from "./routes/health.route";
 import { logger } from "./middlewares/logger.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
-import expenseRoutes from "./routes/expense.route";
 import expensesRoutes from "./routes/expense.route";
 import dashboardRoutes from "./routes/dashboard.route";
 import budgetRoutes from "./routes/budget.route";
@@ -29,14 +28,14 @@ app.use(express.json());
 app.use(logger);
 app.use(apiLimiter);
 app.use(healthRoutes);
-app.use(expenseRoutes);
+// app.use(expenseRoutes); // Removed duplicate
 app.use("/api/expenses", expensesRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/budgets", budgetRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use(errorHandler);
 
 export default app;
