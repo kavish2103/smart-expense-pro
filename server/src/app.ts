@@ -27,6 +27,26 @@ app.use(cors(corsConfig));
 app.use(express.json());
 app.use(logger);
 app.use(apiLimiter);
+
+// Root route
+app.get("/", (req, res) => {
+  res.json({
+    message: "Smart Expense Pro API",
+    version: "1.0.0",
+    status: "running",
+    endpoints: {
+      health: "/health",
+      apiDocs: "/api-docs",
+      auth: "/api/auth",
+      expenses: "/api/expenses",
+      dashboard: "/api/dashboard",
+      budgets: "/api/budgets",
+      ai: "/api/ai",
+      notifications: "/api/notifications"
+    }
+  });
+});
+
 app.use(healthRoutes);
 // app.use(expenseRoutes); // Removed duplicate
 app.use("/api/expenses", expensesRoutes);
