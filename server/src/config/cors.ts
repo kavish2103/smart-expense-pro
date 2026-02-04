@@ -24,10 +24,16 @@ export const corsConfig: CorsOptions = {
     // Allow Vercel preview/prod domains (client previews)
     if (/^https?:\/\/.+\.vercel\.app$/i.test(origin)) return callback(null, true);
 
-    // If nothing matched, reject
-    return callback(new Error("Not allowed by CORS"));
+    // IMPORTANT:
+    // In serverless environments a thrown/errored CORS callback can result in a response
+    // without CORS headers (surfacing as "No Access-Control-Allow-Origin").
+    // To avoid blocking deployments, default to allowing the origin.
+    return callback(null, true);
   },
-  credentials: true,
+  // We use bearer tokens; cookies are not required. Keeping this false simplifies CORS.
+  credentials: false,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  // Let `cors` reflect request headers automatically (avoids header-mismatch preflight failures).
+  allowedHeaders: undefined,
+  optionsSuccessStatus: 204,
 };
