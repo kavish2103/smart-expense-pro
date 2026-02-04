@@ -96,7 +96,7 @@ export const updateExpense = async (req: Request, res: Response) => {
 
     const result = await prisma.expense.updateMany({
       where: {
-        id,
+        id: String(id),
         userId,
       },
       data: req.body,
@@ -127,7 +127,7 @@ export const deleteExpense = async (req: Request, res: Response) => {
 
     const result = await prisma.expense.deleteMany({
       where: {
-        id,
+        id: String(id),
         userId,
       },
     });

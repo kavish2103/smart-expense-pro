@@ -3,7 +3,7 @@ import prisma from "../config/prisma";
 
 export const getNotifications = async (req: Request, res: Response) => {
     try {
-        const userId = req.user!.id;
+        const userId = (req as any).user.id;
         const notifications = await prisma.notification.findMany({
             where: { userId },
             orderBy: { createdAt: "desc" },
@@ -17,8 +17,8 @@ export const getNotifications = async (req: Request, res: Response) => {
 
 export const markAsRead = async (req: Request, res: Response) => {
     try {
-        const id = req.params.id as string;
-        const userId = req.user!.id as string;
+        const { id } = req.params;
+        const userId = (req as any).user.id;
         await prisma.notification.updateMany({
             where: { id, userId },
             data: { isRead: true }
