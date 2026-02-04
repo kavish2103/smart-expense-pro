@@ -24,7 +24,9 @@ const app = express();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors(corsConfig));
 // Explicitly handle preflight requests for all routes
-app.options("*", cors(corsConfig));
+// NOTE: Express 5 can throw on "*" route patterns in some environments.
+// Using a regex avoids startup crashes in serverless runtimes.
+app.options(/.*/, cors(corsConfig));
 
 app.use(express.json());
 app.use(logger);
