@@ -23,6 +23,8 @@ import { apiLimiter } from "./config/rateLimit";
 const app = express();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors(corsConfig));
+// Explicitly handle preflight requests for all routes
+app.options("*", cors(corsConfig));
 
 app.use(express.json());
 app.use(logger);

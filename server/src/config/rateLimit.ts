@@ -5,6 +5,8 @@ export const apiLimiter = rateLimit({
   max: 100, // max requests per IP
   standardHeaders: true,
   legacyHeaders: false,
+  // Don't rate-limit CORS preflight
+  skip: (req) => req.method === "OPTIONS",
   message: {
     message: "Too many requests, please try again later",
   },
