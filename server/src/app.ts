@@ -21,12 +21,24 @@ import { apiLimiter } from "./config/rateLimit";
 
 
 const app = express();
+
+// Basic CORS headers for all responses (defensive, in addition to `cors`)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS"
+  );
+  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  next();
+});
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors(corsConfig));
 // Explicitly handle preflight requests for all routes
-// NOTE: Express 5 can throw on "*" route patterns in some environments.
-// Using a regex avoids startup crashes in serverless runtimes.
-app.options(/.*/, cors(corsConfig));
+app.options(/.*/, (req, res) => {
+  res.sendStatus(204);
+});
 
 app.use(express.json());
 app.use(logger);
