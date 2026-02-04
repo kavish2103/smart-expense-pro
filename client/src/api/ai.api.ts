@@ -2,11 +2,11 @@
 import api from "./axios";
 
 export const getAIInsights = async () => {
-    const res = await api.get("/api/ai/insights");
+    const res = await api.get("/ai/insights");
     return res.data;
 };
 
 export const getAIHistory = async () => {
-    const res = await api.get("/api/ai/history");
+    const res = await api.get("/ai/history");
     return res.data;
 };
