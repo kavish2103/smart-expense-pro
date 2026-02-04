@@ -53,13 +53,14 @@ app.get("/", (req, res) => {
 
 app.use(healthRoutes);
 // app.use(expenseRoutes); // Removed duplicate
-app.use("/api/expenses", expensesRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/budgets", budgetRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/notifications", notificationRoutes);
-
-app.use("/api/auth", authRoutes);
+// In Vercel, this Express app is mounted at `/api` via `api/index.ts`.
+// So routes should be defined WITHOUT an extra `/api` prefix.
+app.use("/expenses", expensesRoutes);
+app.use("/dashboard", dashboardRoutes);
+app.use("/budgets", budgetRoutes);
+app.use("/ai", aiRoutes);
+app.use("/notifications", notificationRoutes);
+app.use("/auth", authRoutes);
 app.use(errorHandler);
 
 export default app;
